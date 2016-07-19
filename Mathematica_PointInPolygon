@@ -1,0 +1,36 @@
+pointInPolygonQ[points_, testPoint_] :=
+  Module[{x1, y1, x2, y2, xTest, yTest, i1, i2, numPoints, 
+    numCrossings, pass, pass2},
+   numPoints = Length[points];
+   xTest = testPoint[[1]];
+   yTest = testPoint[[2]];
+   numCrossings = 0;
+   For[i1 = 1, i1 <= numPoints, i1++,
+    i2 = Mod[i1, numPoints] + 1;
+    x1 = points[[i1, 1]];
+    y1 = points[[i1, 2]];
+    x2 = points[[i2, 1]];
+    y2 = points[[i2, 2]];
+    pass =  (y2 > yTest && (y1 <= yTest)) || 
+                   (y1 > yTest && (y2 <= yTest));
+    (*if pass is true here then continue to the next two points, 
+    otherwise check more*)
+    (*Print[pass && (x2>xTest) && (x1>xTest)];*)
+    If[pass && (x2 > xTest) && (x1 > xTest) ,
+     (*Print["found cross point"];*)
+     numCrossings = numCrossings + 1; 
+     Continue[];,
+     pass2 = 
+      pass && ((x2 > xTest && x1 <= xTest) || (x1 > xTest && 
+           x2 <= xTest)); (*x1,x2 stradle's xTest*)
+     pass2 = pass2 && y2 != y1; (*horizontal line, 
+     no cross by definition*)
+     pass2 = 
+      pass2 && xTest < (x1 + ((yTest - y1)/(y2 - y1))*(x2 - 
+             x1)); (*must check intersection in this case*)
+     numCrossings = numCrossings + Boole[pass2];
+     ];
+    ];
+   (*Print[numCrossings];*)
+   OddQ[numCrossings]
+   ];
